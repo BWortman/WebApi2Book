@@ -1,7 +1,7 @@
 ﻿// DeleteTaskQueryProcessor.cs
-// Copyright Jamie Kurtz, Brian Wortman 2014.
+// Copyright Jamie Kurtz, Brian Wortman 2015.
 
-using NHibernate;
+using EFCommonContext;
 using WebApi2Book.Data.Entities;
 using WebApi2Book.Data.QueryProcessors;
 
@@ -9,19 +9,20 @@ namespace WebApi2Book.Data.SqlServer.QueryProcessors
 {
     public class DeleteTaskQueryProcessor : IDeleteTaskQueryProcessor
     {
-        private readonly ISession _session;
+        private readonly IDbContext _dbContext;
 
-        public DeleteTaskQueryProcessor(ISession session)
+        public DeleteTaskQueryProcessor(IDbContext dbContext)
         {
-            _session = session;
+            _dbContext = dbContext;
         }
 
         public void DeleteTask(long taskId)
         {
-            var task = _session.Get<Task>(taskId);
+            var task = _dbContext.Set<Task>().Find(taskId);
             if (task != null)
             {
-                _session.Delete(task);
+                _dbContext.Set<Task>().Remove(task);
+                _dbContext.SaveChanges();
             }
         }
     }
